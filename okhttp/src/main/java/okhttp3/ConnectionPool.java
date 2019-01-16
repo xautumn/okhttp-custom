@@ -28,6 +28,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+
+import android.util.Log;
 import okhttp3.internal.Util;
 import okhttp3.internal.connection.RealConnection;
 import okhttp3.internal.connection.RouteDatabase;
@@ -42,6 +44,8 @@ import static okhttp3.internal.Util.closeQuietly;
  * of which connections to keep open for future use.
  */
 public final class ConnectionPool {
+
+  private String TAG = "wq";
   /**
    * Background threads are used to cleanup expired connections. There will be at most a single
    * thread running per connection pool. The thread pool executor permits the pool itself to be
@@ -191,6 +195,7 @@ public final class ConnectionPool {
    * -1 if no further cleanups are required.
    */
   long cleanup(long now) {
+    Log.i(TAG,"cleanup = " + now);
     int inUseConnectionCount = 0;
     int idleConnectionCount = 0;
     RealConnection longestIdleConnection = null;
@@ -221,6 +226,7 @@ public final class ConnectionPool {
           || idleConnectionCount > this.maxIdleConnections) {
         // We've found a connection to evict. Remove it from the list, then close it below (outside
         // of the synchronized block).
+        Log.i(TAG,"keepAliveDurationNs is out = " + longestIdleConnection);
         connections.remove(longestIdleConnection);
       } else if (idleConnectionCount > 0) {
         // A connection will be ready to evict soon.
